@@ -53,7 +53,7 @@ const productSchema = new mongoose.Schema({
     // },
 
 }, {
-    timestamps: false, // Adds createdAt and updatedAt automatically
+    timestamps: true, // Adds createdAt and updatedAt automatically
     strict: false
 });
 
