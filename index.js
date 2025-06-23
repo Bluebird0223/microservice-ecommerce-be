@@ -3,7 +3,7 @@ const cors = require("cors")
 const morgan = require("morgan")
 const dotenv = require("dotenv")
 const { connectToDatabase } = require("./DB/connect-db")
-// const routes = require("./routes/routes");
+const routes = require("./routes/routes")
 // const path = require("path");
 
 
@@ -20,7 +20,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // all routes
-// app.use("/", routes);
+app.use("/api", routes);
 
 // default route
 app.get("/", async (request, response) => {
