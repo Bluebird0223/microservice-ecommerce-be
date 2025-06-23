@@ -1,0 +1,25 @@
+{
+  "name": "microservice-ecommerce-be",
+  "version": "1.0.0",
+  "description": "This project is a microservice-based e-commerce backend system designed for scalability, modularity, and cloud deployment (AWS-ready). It features separate services for product catalog, cart management, order processing, and payments — communicating over REST APIs and asynchronous messaging (RabbitMQ/SQS).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
+  "keywords": [],
+  "author": "naitik ramteke",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.0",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.1",
+    "nodemon": "^3.1.10",
+    "path": "^0.12.7"
+  }
+}
