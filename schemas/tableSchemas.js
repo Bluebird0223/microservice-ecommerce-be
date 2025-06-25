@@ -1,5 +1,3 @@
-// schemas/tableSchemas.js
-
 const userTableSchema = {
     TableName: 'Users',
     AttributeDefinitions: [
@@ -29,6 +27,20 @@ const userTableSchema = {
         },
     ],
 };
+const categoryTableSchema = {
+    TableName: 'Categories',
+    AttributeDefinitions: [
+        { AttributeName: 'categoryId', AttributeType: 'S' }, // Partition Key
+    ],
+    KeySchema: [
+        { AttributeName: 'categoryId', KeyType: 'HASH' }, // Partition Key
+    ],
+    ProvisionedThroughput: {
+        ReadCapacityUnits: 5,
+        WriteCapacityUnits: 5,
+    },
+};
+
 
 const productTableSchema = {
     TableName: 'Products',
@@ -156,6 +168,7 @@ const paymentTableSchema = {
 
 module.exports = {
     userTableSchema,
+    categoryTableSchema,
     productTableSchema,
     orderTableSchema,
     paymentTableSchema,

@@ -1,6 +1,8 @@
 const { dynamodb, s3, S3_BUCKET_NAME, S3_PROFILE_PICTURE_FOLDER, DYNAMODB_USERS_TABLE } = require('../config/aws');
 const userSchema = require('../schemas/usersSchema');
-const { v4: uuidv4 } = require('uuid');
+const uniqId = require("short-unique-id")
+
+const uid = new uniqId({ length: 10 });
 
 // Function to create a user
 async function createUser(userData) {
@@ -14,7 +16,7 @@ async function createUser(userData) {
             TableName: DYNAMODB_USERS_TABLE,
             Item: {
                 ...userData, // Use the data provided (assumed validated by controller)
-                userId: userData.userId || uuidv4(), // Generate ID if not provided
+                userId: userData.userId || uid.stamp(10), // Generate ID if not provided
                 createdAt: userData.createdAt || new Date().toISOString(),
                 updatedAt: new Date().toISOString(), // Always update updatedAt on creation
             }
