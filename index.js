@@ -4,14 +4,16 @@ const morgan = require("morgan")
 const dotenv = require("dotenv")
 const { connectToDatabase } = require("./DB/connect-db")
 const routes = require("./routes/routes")
-// const path = require("path");
+const createDynamoDBTable = require("./utils/helper/create-tables")
+const { userTableSchema } = require("./schemas/tableSchemas")
 
+// Load environment variables from .env file
+dotenv.config()
 
 const port = process.env.PORT || 3080
 
 // create express app
 const app = express()
-dotenv.config()
 
 // middlewares
 app.use(cors({ origin: "*" }))
@@ -31,22 +33,37 @@ app.get("/", async (request, response) => {
 
 
 
-//if routes not found
-// app.get("*", function (request, response) {
-//     response.status(404).json({ message: "Route not found" });
-// });
-
-// app.post("*", function (request, response) {
-//     response.status(404).json({ message: "Route not found" });
-// });
-
-// error handler
+// Centralized Error Handler
 app.use((err, req, res, next) => {
-    res.status(500).json({ message: err.message, stack: err.stack });
+    console.error('Global Error Handler:', err); // Log the error for debugging
+    const statusCode = err.statusCode || 500;
+    const message = err.message || 'Something went wrong!';
+    res.status(statusCode).json({
+        status: 'error',
+        message: message,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined // Show stack in dev
+    });
 });
+
 
 // connect to database
 connectToDatabase();
+
+
+async function initializeDatabase() {
+    try {
+        await createDynamoDBTable(userTableSchema);
+        console.log('Database initialization for User Service complete.');
+    } catch (error) {
+        console.error('Failed to initialize database for User Service:', error);
+        // Depending on your deployment strategy, you might want to exit here
+        // process.exit(1);
+    }
+}
+
+initializeDatabase().then(() => {
+    console.log('user service table created successfully');
+});
 
 // start server
 app.listen(port, () => {

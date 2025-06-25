@@ -5,27 +5,54 @@ const uid = new uniqId();
 const multerUtils = require("../../utils/multer/multer-utils")
 
 
-const multerStorage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const path = "./public/image/";  // file added to the public folder of the root directory
-        if (!fs.existsSync(path)) {
-            fs.mkdirSync(path)
-        }
-        cb(null, path)
-    },
-    
-    //save file name as original name
-    filename: function (req, file, cb) {
-        try {
-            const extension = file.mimetype.split("/")[1];
-            const filename = `${uid.stamp(10)}.${extension}`;
-            cb(null, filename);
-        } catch (error) {
-            cb(error, null);
-        }
+// const multerStorage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//         const path = "./public/image/";  // file added to the public folder of the root directory
+//         if (!fs.existsSync(path)) {
+//             fs.mkdirSync(path)
+//         }
+//         cb(null, path)
+//     },
+
+//     //save file name as original name
+//     filename: function (req, file, cb) {
+//         try {
+//             const extension = file.mimetype.split("/")[1];
+//             const filename = `${uid.stamp(10)}.${extension}`;
+//             cb(null, filename);
+//         } catch (error) {
+//             cb(error, null);
+//         }
+//     }
+// });
+
+
+// const uploadSingleImage = multer({ storage: multerStorage, limits: { fileSize: multerUtils?.MULTER_UPLOAD_FILE_SIZE_LIMIT }, fileFilter: multerUtils?.multerFileTypeImage })
+// module.exports = uploadSingleImage;
+
+// upload-memory.js
+// const multer = require("multer");
+// const multerUtils = require("../../utils/multer/multer-utils");
+
+
+const storage = multer.memoryStorage();
+
+const fileNamer = (req, file, cb) => {
+    try {
+        const extension = file.mimetype.split("/")[1];
+        const filename = `${uid()}-${Date.now()}.${extension}`;
+        file.originalCustomName = filename; // Attach to file object
+        cb(null, filename);
+    } catch (error) {
+        cb(error, null);
     }
+};
+
+const uploadSingleImage = multer({
+    storage,
+    limits: { fileSize: multerUtils?.MULTER_UPLOAD_FILE_SIZE_LIMIT },
+    fileFilter: multerUtils?.multerFileTypeImage,
+    fileName: fileNamer,
 });
 
-
-const uploadSingleImage = multer({ storage: multerStorage, limits: { fileSize: multerUtils?.MULTER_UPLOAD_FILE_SIZE_LIMIT }, fileFilter: multerUtils?.multerFileTypeImage })
 module.exports = uploadSingleImage;

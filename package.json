@@ -11,6 +11,10 @@
   "author": "naitik ramteke",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.835.0",
+    "@aws-sdk/credential-provider-node": "^3.835.0",
+    "@aws-sdk/lib-dynamodb": "^3.835.0",
+    "aws-sdk": "^2.1692.0",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
@@ -20,6 +24,8 @@
     "morgan": "^1.10.0",
     "multer": "^2.0.1",
     "nodemon": "^3.1.10",
-    "path": "^0.12.7"
+    "path": "^0.12.7",
+    "short-unique-id": "^5.3.2",
+    "uuid": "^11.1.0"
   }
 }
