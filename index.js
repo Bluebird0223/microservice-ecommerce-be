@@ -54,7 +54,6 @@ async function initializeDatabase() {
     try {
         await createDynamoDBTable(userTableSchema);
         await createDynamoDBTable(categoryTableSchema)
-        console.log('Database initialization for User Service complete.');
     } catch (error) {
         console.error('Failed to initialize database for User Service:', error);
         // Depending on your deployment strategy, you might want to exit here

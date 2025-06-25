@@ -8,4 +8,7 @@ usersRoutes.get('/users', userController.getAllUsers);
 usersRoutes.post('/user-id', userController.getUserById);
 usersRoutes.put('/update-user', userController.updateUser)
 
+// admin
+usersRoutes.post('/login',userController.loginUser)
+
 module.exports = usersRoutes;

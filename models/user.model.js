@@ -64,6 +64,26 @@ async function getUserById(userId) {
         throw error; // Re-throw the error for upstream handling
     }
 }
+
+async function getUserByName(username) {
+    try {
+        const params = {
+            TableName: DYNAMODB_USERS_TABLE,
+            FilterExpression: 'username = :userNameVal',
+            ExpressionAttributeValues: {
+                ':userNameVal': username
+            }
+        };
+
+        const result = await dynamodb.scan(params).promise();
+        return result.Items.length > 0 ? result.Items[0] : null;
+    } catch (error) {
+        console.error("Error in models/userModel.js - getUserByName:", error);
+        throw error; // Re-throw the error for upstream handling
+    }
+}
+
+
 // Function to get all users
 async function getAllUsers() {
     try {
@@ -115,5 +135,6 @@ module.exports = {
     getUserByEmail,
     getAllUsers,
     updateUser,
-    getUserById
+    getUserById,
+    getUserByName
 };

@@ -6,7 +6,7 @@ const uploadProfilePictureToS3 = require('../utils/helper/upload-image-to-s3');
 const S3_PROFILE_PICTURE_FOLDER = process.env.S3_PROFILE_PICTURE_FOLDER || 'profile-pictures/';
 const runMiddleware = require('../utils/middleware/multer-middleware');
 const uploadSingleImage = require('../utils/multer/upload-image');
-
+const generateUserJWT=require('../utils/middleware/generate.token')
 // Controller for creating a user
 const createUser = async (req, res, next) => {
     try {
@@ -202,9 +202,77 @@ const getUserById = async (req, res, next) => {
     }
 }
 
+const loginUser = async (req, res, next) => {
+    try {
+
+        //Extract data from request body
+        const { userName, password } = req.body;
+
+        // Validate incoming JSON data first (excluding file data for now)
+        const { error, value } = userSchema.validate(req.body, { abortEarly: true });
+        if (error) {
+            // Send specific validation errors
+            return res.status(400).json({
+                message: 'Validation Error',
+                details: error.details.map(x => x.message)
+            });
+        }
+
+        //check if user exist 
+        const existingUserByName = await userModel.getUserByName(userName);
+        if (!existingUserByName) {
+            return res.status(400).json({ // 409 Conflict is appropriate for resource conflict
+                status: "FAILED",
+                message: "User does not exist"
+            });
+        }
+
+        // check if user admin
+        if (existingUserByName?.userType !== "admin") {
+            return res.status(200).json({
+                status: "FAILED",
+                message: "User is not admin"
+            })
+        }
+
+        //compare password with password in database
+        if (password === existingUserByName?.password) {
+            const userDetails = {
+                userId: existingUserByName?.userId,
+                username: existingUserByName?.username,
+                userType: existingUserByName?.userType,
+                email: existingUserByName?.email,
+                bio: existingUserByName?.bio,
+                // employeeGroup: isUserExist?.employee_group,
+                // tabAccess: isUserExist?.tabAccess
+            }
+            const token = generateUserJWT(userDetails)
+            if (token) {
+                return res.status(200).json({
+                    status: "SUCCESS",
+                    message: "Login Successfully",
+                    token,
+                    userDetails,
+                })
+            }
+        } else {
+            return res.status(200).json({
+                status: "FAILED",
+                message: "Incorrect credential!, check your id or password.",
+            });
+        }
+
+    } catch (error) {
+        console.error("Error in userController.js - login:", error);
+        next(error);
+    }
+
+}
+
 module.exports = {
     createUser,
     getAllUsers,
     updateUser,
-    getUserById
+    getUserById,
+    loginUser
 };
