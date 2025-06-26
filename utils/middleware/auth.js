@@ -1,5 +1,5 @@
 const jsonWebToken = require("jsonwebtoken");
-const userService = require("../../services/user.service");
+const userModel = require('../../models/user.model');
 
 const userAuthentication = async (request, response, next) => {
     try {
@@ -18,8 +18,8 @@ const userAuthentication = async (request, response, next) => {
                 } else {
 
                     // If the token is valid, check if the user exists in the database
-                    request._id = userDetails?._id;
-                    const isUserExist = await userService.getEmployeeByObjectId(userDetails?._id);
+                    request.userId = userDetails?.userId;
+                    const isUserExist = await userModel.getUserById(userDetails?.userId);
                     if (!isUserExist) {
                         return response.status(200).json({
                             status: "JWT_INVALID",
@@ -29,10 +29,10 @@ const userAuthentication = async (request, response, next) => {
 
                     // data to pass in request object
                     request.userId = isUserExist?.userId;
-                    request.name = isUserExist?.name;
-                    request.designation = isUserExist?.designation;
-                    request.employeeGroup = isUserExist?.employee_group;
-                    request.tabAccess = isUserExist?.tabAccess;
+                    request.username = isUserExist?.username;
+                    request.userType = isUserExist?.userType;
+                    request.email = isUserExist?.email;
+                    request.bio = isUserExist?.bio;
                     // request.email = isUserExist?.email;
                     // request.mobile = isUserExist?.mobile;
                     // request.tabAccess = isUserExist?.tabAccess;

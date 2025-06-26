@@ -1,4 +1,4 @@
-// // controllers/userController.js
+
 const userModel = require('../models/user.model');
 const userSchema = require('../schemas/usersSchema');
 const deleteFromS3 = require('../utils/helper/delete-image-s3');
@@ -6,7 +6,7 @@ const uploadProfilePictureToS3 = require('../utils/helper/upload-image-to-s3');
 const S3_PROFILE_PICTURE_FOLDER = process.env.S3_PROFILE_PICTURE_FOLDER || 'profile-pictures/';
 const runMiddleware = require('../utils/middleware/multer-middleware');
 const uploadSingleImage = require('../utils/multer/upload-image');
-const generateUserJWT=require('../utils/middleware/generate.token')
+const generateUserJWT = require('../utils/middleware/generate.token')
 // Controller for creating a user
 const createUser = async (req, res, next) => {
     try {
@@ -208,20 +208,17 @@ const loginUser = async (req, res, next) => {
         //Extract data from request body
         const { userName, password } = req.body;
 
-        // Validate incoming JSON data first (excluding file data for now)
-        const { error, value } = userSchema.validate(req.body, { abortEarly: true });
-        if (error) {
-            // Send specific validation errors
+        if (!userName || !password) {
             return res.status(400).json({
-                message: 'Validation Error',
-                details: error.details.map(x => x.message)
+                status: "FAILED",
+                message: "User name and password required"
             });
         }
 
         //check if user exist 
         const existingUserByName = await userModel.getUserByName(userName);
         if (!existingUserByName) {
-            return res.status(400).json({ // 409 Conflict is appropriate for resource conflict
+            return res.status(400).json({
                 status: "FAILED",
                 message: "User does not exist"
             });
@@ -234,6 +231,7 @@ const loginUser = async (req, res, next) => {
                 message: "User is not admin"
             })
         }
+
 
         //compare password with password in database
         if (password === existingUserByName?.password) {
@@ -261,6 +259,7 @@ const loginUser = async (req, res, next) => {
                 message: "Incorrect credential!, check your id or password.",
             });
         }
+
 
     } catch (error) {
         console.error("Error in userController.js - login:", error);

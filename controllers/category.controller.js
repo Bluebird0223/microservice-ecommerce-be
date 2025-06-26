@@ -55,107 +55,71 @@ const getAllCategory = async (req, res, next) => {
     }
 };
 
-// // Controller for updating a user
-// const updateUser = async (req, res, next) => {
-//     try {
+// Controller for updating a user
+const updateCategory = async (req, res, next) => {
+    try {
 
-//         let isFileAttached = req?.query?.isFileAttached;
-//         let data;
-
-//         // Upload documents if a file is attached
-//         if (isFileAttached === "true") {
-//             const fileResponse = await runMiddleware(req, res, uploadSingleImage.single('profilePicture'));
-//             if (fileResponse) {
-//                 return res.status(200).json({
-//                     status: "FAILED",
-//                     message: fileResponse.code
-//                 });
-//             }
-//             data = JSON.parse(req.body.data);
-//         } else {
-//             data = req.body;
-//         }
-
-//         // Set the file size limit
-//         const sizeLimit = 2000000; // 2MB limit
-//         const attachedFile = req?.file;
-
-//         // Check if the file is an image or pdf, and exceeds the size limit
-//         if (attachedFile?.mimetype?.startsWith("image/") && attachedFile?.size >= sizeLimit) {
-//             return res.status(200).json({
-//                 status: "FAILED",
-//                 message: `${attachedFile?.originalname} exceeds the 2MB size limit`
-//             });
-//         }
-
-//         // const updateData = data;
-
-//         // Validate user data using Joi
-//         const { error, value } = userSchema.validate(data, { abortEarly: false, stripUnknown: true });
-
-//         if (error) {
-//             return res.status(400).json({
-//                 status: "FAILED",
-//                 message: 'Validation Error',
-//                 details: error.details.map(x => x.message),
-//             });
-//         }
-
-//         // Fetch existing user
-//         const existingUser = await userModel.getUserById(data?.userId);
-//         if (!existingUser) {
-//             return res.status(404).json({ message: 'User not found' });
-//         }
+        const { categoryId, categoryName } = req.body;
 
 
-//         if (attachedFile) {
-//             if (existingUser.profilePicture) {
-//                 await deleteFromS3(existingUser.profilePicture);
-//             }
+        // Validate user data using Joi
+        const { error, value } = categorySchema.validate({ categoryId, categoryName }, { abortEarly: false, stripUnknown: true });
+        if (error) {
+            return res.status(400).json({
+                status: "FAILED",
+                message: 'Validation Error',
+                details: error.details.map(x => x.message),
+            });
+        }
 
-//             const profilePictureUrl = await uploadProfilePictureToS3('profile-pictures/', attachedFile.buffer, attachedFile.mimetype);
+        // Fetch existing user
+        const existingUser = await categoryModel.getCategoryById(value?.categoryId);
+        if (!existingUser) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
 
-//             value.profilePicture = profilePictureUrl;
-//         }
+        const updated = await categoryModel.updateCategory(value);
 
-//         // Update user
-//         value.updatedAt = new Date().toISOString();
+        if (!updated) {
+            return res.status(404).json({
+                status: 'FAILED',
+                message: 'Category not found.',
+            });
+        }
 
-//         const updatedUser = await userModel.updateUser(data?.userId, value);
+        return res.status(200).json({
+            status: "SUCCESS",
+            message: "Category updated successfully",
+            updated
+        });
+    } catch (error) {
+        console.error("Error in userController.js - updateCategory:", error);
+        next(error); // Pass error to the error handling middleware
+    }
+};
 
-//         return res.status(200).json({
-//             status: "SUCCESS",
-//             message: "User updated successfully",
-//             user: updatedUser,
-//         });
-//     } catch (error) {
-//         console.error("Error in userController.js - updateUser:", error);
-//         next(error); // Pass error to the error handling middleware
-//     }
-// };
+const getCategoryById = async (req, res, next) => {
+    try {
+        const { categoryId } = req.body;
+        // Fetch existing category
+        const existingCategory = await categoryModel.getCategoryById(categoryId);
+        if (!existingCategory) {
+            return res.status(404).json({ message: 'category not found' });
+        }
+        res.status(200).json({
+            message: 'Category retrieved successfully',
+            existingCategory
+        });
 
-// const getUserById = async (req, res, next) => {
-//     try {
-//         const { userId } = req.body;
-//         // Fetch existing user
-//         const existingUser = await userModel.getUserById(userId);
-//         if (!existingUser) {
-//             return res.status(404).json({ message: 'User not found' });
-//         }
-//         res.status(200).json({
-//             message: 'User retrieved successfully',
-//             existingUser
-//         });
-
-//     } catch (error) {
-//         console.error("Error in userController.js - getUserById:", error);
-//         next(error);
-//     }
-// }
+    } catch (error) {
+        console.error("Error in categoryController.js - getCategoryById:", error);
+        next(error);
+    }
+}
 
 module.exports = {
     createCategory,
     getAllCategory,
-    // updateUser,
-    // getUserById
+    getCategoryById,
+    updateCategory
 };

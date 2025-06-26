@@ -27,14 +27,15 @@ exports.getCategoryByName = async (categoryname) => {
     try {
         // Extract the string value from the object
         if (typeof categoryname === 'object' && categoryname !== null && 'categoryName' in categoryname) {
-            categoryNameAsString = categoryname.categoryName;
+
+            categoryNameAsString = categoryname?.categoryName;
         } else if (typeof categoryname === 'string') {
             categoryNameAsString = categoryname;
         }
 
         const params = {
             TableName: DYNAMODB_CATEGORY_TABLE,
-            FilterExpression: 'categoryname = :categoryVal',
+            FilterExpression: 'categoryName = :categoryVal',
             ExpressionAttributeValues: {
                 ':categoryVal': categoryNameAsString
             }
@@ -46,23 +47,23 @@ exports.getCategoryByName = async (categoryname) => {
         throw error; // Re-throw the error for upstream handling
     }
 }
-// async function getUserById(userId) {
-//     try {
-//         const params = {
-//             TableName: DYNAMODB_USERS_TABLE,
-//             FilterExpression: 'userId = :userIdVal',
-//             ExpressionAttributeValues: {
-//                 ':userIdVal': userId
-//             }
-//         };
+exports.getCategoryById = async (categoryId) => {
+    try {
+        const params = {
+            TableName: DYNAMODB_CATEGORY_TABLE,
+            FilterExpression: 'categoryId = :categoryVal',
+            ExpressionAttributeValues: {
+                ':categoryVal': categoryId
+            }
+        };
 
-//         const result = await dynamodb.scan(params).promise();
-//         return result.Items.length > 0 ? result.Items[0] : null;
-//     } catch (error) {
-//         console.error("Error in models/userModel.js - getUserByEmail:", error);
-//         throw error; // Re-throw the error for upstream handling
-//     }
-// }
+        const result = await dynamodb.scan(params).promise();
+        return result.Items.length > 0 ? result.Items[0] : null;
+    } catch (error) {
+        console.error("Error in models/categoryModel.js - getCategoryById:", error);
+        throw error; // Re-throw the error for upstream handling
+    }
+}
 
 // Function to get all category
 exports.getAllCategory = async () => {
@@ -79,33 +80,47 @@ exports.getAllCategory = async () => {
     }
 }
 
-// // Function to update a user (simplified example for profile picture update)
-// async function updateUser(userId, updateData) {
-//     try {
-//         const { error } = userSchema.validate(updateData, { abortEarly: false, stripUnknown: true });
-//         if (error) {
-//             throw new Error(`Validation Error: ${error.details.map(x => x.message).join(', ')}`);
-//         }
+exports.updateCategory = async (updates) => {
+    try {
+        if (!updates?.categoryId) {
+            throw new Error('categoryId is required for update');
+        }
 
-//         const Item = {
-//             userId: userId,
-//             ...updateData,
-//             updatedAt: new Date().toISOString(),
-//         };
+        const timestamp = new Date().toISOString();
+        const updateExpression = [];
+        const expressionAttributeNames = {};
+        const expressionAttributeValues = {};
 
-//         const params = {
-//             TableName: DYNAMODB_USERS_TABLE,
-//             key: { userId },
-//             Item: Item,
-//             UpdateExpression: "set #name = :name, updatedAt = :updatedAt",
-//             ReturnValues: "ALL_OLD"
-//         };
+        const { categoryId, ...fieldsToUpdate } = updates;
 
-//         await dynamodb.put(params).promise();
-//         console.log('User updated in DynamoDB:', userId);
-//         return Item; // Return the updated item
-//     } catch (error) {
-//         console.error("Error in models/userModel.js - updateUser:", error);
-//         throw error;
-//     }
-// }
+        // Ensure updatedAt is not included in updates
+        delete fieldsToUpdate.updatedAt;
+
+        for (const [key, value] of Object.entries(fieldsToUpdate)) {
+            updateExpression.push(`#${key} = :${key}`);
+            expressionAttributeNames[`#${key}`] = key;
+            expressionAttributeValues[`:${key}`] = value;
+        }
+
+        // Always add updatedAt
+        updateExpression.push('#updatedAt = :updatedAt');
+        expressionAttributeNames['#updatedAt'] = 'updatedAt';
+        expressionAttributeValues[':updatedAt'] = timestamp;
+
+        const params = {
+            TableName: DYNAMODB_CATEGORY_TABLE,
+            Key: { categoryId },
+            UpdateExpression: 'SET ' + updateExpression.join(', '),
+            ExpressionAttributeNames: expressionAttributeNames,
+            ExpressionAttributeValues: expressionAttributeValues,
+            ReturnValues: 'ALL_NEW',
+        };
+
+        const result = await dynamodb.update(params).promise();
+        console.log('Category updated:', result.Attributes);
+        return result.Attributes;
+    } catch (error) {
+        console.error("Error in models/categoryModel.js - updateCategory:", error);
+        throw error;
+    }
+};
