@@ -130,6 +130,7 @@ async function updateUser(userId, updateData) {
     }
 }
 
+
 module.exports = {
     createUser,
     getUserByEmail,

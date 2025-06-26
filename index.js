@@ -5,7 +5,7 @@ const dotenv = require("dotenv")
 const { connectToDatabase } = require("./DB/connect-db")
 const routes = require("./routes/routes")
 const createDynamoDBTable = require("./utils/helper/create-tables")
-const { userTableSchema, categoryTableSchema } = require("./schemas/tableSchemas")
+const { userTableSchema, categoryTableSchema, productTableSchema } = require("./schemas/tableSchemas")
 
 // Load environment variables from .env file
 dotenv.config()
@@ -52,17 +52,18 @@ connectToDatabase();
 
 async function initializeDatabase() {
     try {
-        await createDynamoDBTable(userTableSchema);
+        await createDynamoDBTable(userTableSchema)
         await createDynamoDBTable(categoryTableSchema)
+        await createDynamoDBTable(productTableSchema)
     } catch (error) {
-        console.error('Failed to initialize database for User Service:', error);
+        console.error('Failed to initialize:', error);
         // Depending on your deployment strategy, you might want to exit here
         // process.exit(1);
     }
 }
 
 initializeDatabase().then(() => {
-    console.log('user service table created successfully');
+    console.log('table created successfully');
 });
 
 // start server

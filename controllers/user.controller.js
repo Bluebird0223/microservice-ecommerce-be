@@ -34,7 +34,6 @@ const createUser = async (req, res, next) => {
 
         // Check if the file exists, is an image or pdf, and exceeds the size limit
         if (attachedFile?.mimetype?.startsWith("image/") && attachedFile?.size >= sizeLimit) {
-            await deleteSingleFile(req?.file)
             return res.status(200).json({
                 status: "FAILED",
                 message: `${attachedFile?.originalname} exceeds the 2MB size limit`

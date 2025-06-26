@@ -27,6 +27,7 @@ const userTableSchema = {
         },
     ],
 };
+
 const categoryTableSchema = {
     TableName: 'Categories',
     AttributeDefinitions: [
@@ -41,14 +42,15 @@ const categoryTableSchema = {
     },
 };
 
-
 const productTableSchema = {
     TableName: 'Products',
     AttributeDefinitions: [
-        { AttributeName: 'productId', AttributeType: 'S' }, // Partition Key
-        { AttributeName: 'category', AttributeType: 'S' }, // For CategoryIndex GSI
-        { AttributeName: 'isActive', AttributeType: 'BOOL' }, // For StockIndex GSI
-        { AttributeName: 'stockQuantity', AttributeType: 'N' }, // For StockIndex GSI
+        { AttributeName: 'productId', AttributeType: 'S' },
+        { AttributeName: 'categoryId', AttributeType: 'S' },
+        { AttributeName: 'stockQuantity', AttributeType: 'N' },
+        // It's good practice to also include attributes that might be part of other future indexes,
+        // or attributes you frequently query/sort by even if not a key yet, e.g., 'price' if you plan to filter by range.
+        // { AttributeName: 'price', AttributeType: 'N' }, // If you plan a GSI on price later
     ],
     KeySchema: [
         { AttributeName: 'productId', KeyType: 'HASH' },
@@ -61,10 +63,10 @@ const productTableSchema = {
         {
             IndexName: 'CategoryIndex',
             KeySchema: [
-                { AttributeName: 'category', KeyType: 'HASH' },
+                { AttributeName: 'categoryId', KeyType: 'HASH' }, // Changed from 'category'
             ],
             Projection: {
-                ProjectionType: 'ALL',
+                ProjectionType: 'ALL', // Includes all attributes in the index
             },
             ProvisionedThroughput: {
                 ReadCapacityUnits: 5,
@@ -72,10 +74,9 @@ const productTableSchema = {
             },
         },
         {
-            IndexName: 'StockIndex', // Example GSI for finding active products with stock
+            IndexName: 'StockIndex', // GSI for finding active products with stock
             KeySchema: [
-                { AttributeName: 'isActive', KeyType: 'HASH' },
-                { AttributeName: 'stockQuantity', KeyType: 'RANGE' }, // Sort by stock
+                { AttributeName: 'stockQuantity', KeyType: 'HASH' }, // Changed from 'stock' in your Joi, now matches. Type 'N'
             ],
             Projection: {
                 ProjectionType: 'ALL',

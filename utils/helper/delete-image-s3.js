@@ -12,7 +12,7 @@ const deleteFromS3 = async (imageUrl) => {
         let key;
 
         // If it's a full URL, parse the pathname
-        if (imageUrl.startsWith("http")) {
+        if (imageUrl.startsWith("https")) {
             const parsed = new URL(imageUrl);
             key = decodeURIComponent(parsed.pathname.substring(1)); // Remove leading slash
         } else {
