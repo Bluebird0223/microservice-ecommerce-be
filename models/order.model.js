@@ -30,6 +30,19 @@ exports.getOrdersByUserId = async (userId) => {
     return result.Items;
 };
 
+exports.getOrdersByOrderId = async (orderId) => {
+    const params = {
+        TableName: DYNAMODB_ORDER_TABLE,
+        IndexName: 'OrderStatusIndex',
+        KeyConditionExpression: 'orderId = :id',
+        ExpressionAttributeValues: {
+            ':id': orderId
+        }
+    };
+    const result = await dynamodb.query(params).promise();
+    return result.Items;
+};
+
 exports.getOrdersByStatus = async (status) => {
     const params = {
         TableName: DYNAMODB_ORDER_TABLE,

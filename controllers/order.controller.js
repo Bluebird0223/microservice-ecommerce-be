@@ -2,7 +2,7 @@
 const { orderSchema } = require('../schemas/orderSchema');
 const orderModel = require('../models/order.model');
 
-// Controller for creating a user
+// Controller for creating a order
 exports.createOrder = async (req, res, next) => {
     try {
         // Extract data from request body
@@ -31,19 +31,24 @@ exports.createOrder = async (req, res, next) => {
     }
 };
 
-// Controller for getting all category
-// const getAllCategory = async (req, res, next) => {
-//     try {
-//         const categories = await categoryModel.getAllCategory();
-//         res.status(200).json({
-//             message: 'Category retrieved successfully',
-//             categories
-//         });
-//     } catch (error) {
-//         console.error("Error in categoryController.js - getAllCategory:", error);
-//         next(error); // Pass error to the error handling middleware
-//     }
-// };
+// Controller for getting all order
+exports.getOrdersById = async (req, res, next) => {
+    try {
+
+        let userId='685c161es0'
+
+        // const { userId } = req
+
+        const orders = await orderModel.getOrdersByUserId(userId);
+        res.status(200).json({
+            message: 'Orders retrieved successfully',
+            orders
+        });
+    } catch (error) {
+        console.error("Error in orderController.js - getOrdersById:", error);
+        next(error); // Pass error to the error handling middleware
+    }
+};
 
 // // Controller for updating a user
 // const updateCategory = async (req, res, next) => {
@@ -88,28 +93,20 @@ exports.createOrder = async (req, res, next) => {
 //     }
 // };
 
-// const getCategoryById = async (req, res, next) => {
-//     try {
-//         const { categoryId } = req.body;
-//         // Fetch existing category
-//         const existingCategory = await categoryModel.getCategoryById(categoryId);
-//         if (!existingCategory) {
-//             return res.status(404).json({ message: 'category not found' });
-//         }
-//         res.status(200).json({
-//             message: 'Category retrieved successfully',
-//             existingCategory
-//         });
-
-//     } catch (error) {
-//         console.error("Error in categoryController.js - getCategoryById:", error);
-//         next(error);
-//     }
-// }
-
-// module.exports = {
-//     createCategory,
-//     getAllCategory,
-//     getCategoryById,
-//     updateCategory
-// };
+exports.getOrderByOrderId = async (req, res, next) => {
+    try {
+        const { orderId } = req.body;
+        // Fetch existing order
+        const existingOrder = await orderModel.getOrderByOrderId(orderId);
+        if (!existingOrder) {
+            return res.status(404).json({ message: 'order not found' });
+        }
+        res.status(200).json({
+            message: 'Order retrieved successfully',
+            existingOrder
+        });
+    } catch (error) {
+        console.error("Error in orderController.js - getOrderById:", error);
+        next(error);
+    }
+}
