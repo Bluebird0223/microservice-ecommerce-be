@@ -89,12 +89,27 @@ const productTableSchema = {
     ],
 };
 
+const cartTableSchema = {
+    TableName: 'Carts',
+    AttributeDefinitions: [
+        { AttributeName: 'cartId', AttributeType: 'S' },
+        { AttributeName: 'userId', AttributeType: 'S' },
+    ],
+    KeySchema: [
+        { AttributeName: 'userId', KeyType: 'HASH' },
+        { AttributeName: 'cartId', KeyType: 'RANGE' }
+    ],
+    ProvisionedThroughput: {
+        ReadCapacityUnits: 5,
+        WriteCapacityUnits: 5,
+    },
+};
+
 const orderTableSchema = {
     TableName: 'Orders',
     AttributeDefinitions: [
         { AttributeName: 'orderId', AttributeType: 'S' }, // Partition Key
         { AttributeName: 'userId', AttributeType: 'S' },  // For UserOrdersIndex GSI
-        { AttributeName: 'createdAt', AttributeType: 'S' }, // For UserOrdersIndex Sort Key and OrderStatusIndex Sort Key
         { AttributeName: 'orderStatus', AttributeType: 'S' }, // For OrderStatusIndex GSI
     ],
     KeySchema: [
@@ -109,7 +124,6 @@ const orderTableSchema = {
             IndexName: 'UserOrdersIndex',
             KeySchema: [
                 { AttributeName: 'userId', KeyType: 'HASH' },
-                { AttributeName: 'createdAt', KeyType: 'RANGE' }, // Sort orders by creation date for a user
             ],
             Projection: {
                 ProjectionType: 'ALL',
@@ -123,7 +137,6 @@ const orderTableSchema = {
             IndexName: 'OrderStatusIndex',
             KeySchema: [
                 { AttributeName: 'orderStatus', KeyType: 'HASH' },
-                { AttributeName: 'createdAt', KeyType: 'RANGE' }, // Sort by creation date within a status
             ],
             Projection: {
                 ProjectionType: 'ALL',
@@ -171,6 +184,7 @@ module.exports = {
     userTableSchema,
     categoryTableSchema,
     productTableSchema,
+    cartTableSchema,
     orderTableSchema,
     paymentTableSchema,
 };

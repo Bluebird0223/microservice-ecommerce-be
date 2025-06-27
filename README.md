@@ -9,11 +9,11 @@ This project is a microservice-based e-commerce backend system designed for scal
 ## 📌 Architecture Overview
 
 - **Catalog Service**: Manage product listings, categories, and stock levels.
-- **Cart Service**: Handle user shopping carts (session-based, using Redis).
+- **Cart Service**: Handle user shopping carts (session-based, using Redis). ✔
 - **Order Service**: Manage order creation, history, and status.
-- **Payment Service**: Integrate payment gateway (mock or Razorpay).
+- **Payment Service**: Integrate payment gateway (Razorpay).
 - **Message Broker**: RabbitMQ or AWS SQS for async order/payment flow.
-- **Database per Service**: MongoDB (or DynamoDB if AWS-first).
+- **Database per Service**: DynamoDB.
 
 ---
 
@@ -45,7 +45,6 @@ Use CloudFormation / Terraform for infra-as-code (future enhancement)
 Naitik Ramteke
 
 LinkedIn:[https://link](https://www.linkedin.com/in/naitik-ramteke)
-
 
 📃 License
 MIT
