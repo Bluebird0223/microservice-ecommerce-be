@@ -154,6 +154,7 @@ const paymentTableSchema = {
     AttributeDefinitions: [
         { AttributeName: 'paymentId', AttributeType: 'S' }, // Partition Key
         { AttributeName: 'orderId', AttributeType: 'S' }, // For OrderPaymentIndex GSI
+        { AttributeName: 'userId', AttributeType: 'S' },
     ],
     KeySchema: [
         { AttributeName: 'paymentId', KeyType: 'HASH' },
@@ -167,6 +168,19 @@ const paymentTableSchema = {
             IndexName: 'OrderPaymentIndex',
             KeySchema: [
                 { AttributeName: 'orderId', KeyType: 'HASH' },
+            ],
+            Projection: {
+                ProjectionType: 'ALL',
+            },
+            ProvisionedThroughput: {
+                ReadCapacityUnits: 5,
+                WriteCapacityUnits: 5,
+            },
+        },
+        {
+            IndexName: 'UserOrdersIndex',
+            KeySchema: [
+                { AttributeName: 'userId', KeyType: 'HASH' },
             ],
             Projection: {
                 ProjectionType: 'ALL',
