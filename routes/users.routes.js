@@ -11,4 +11,8 @@ usersRoutes.put('/update-user', userController.updateUser)
 // admin
 usersRoutes.post('/login',userController.loginUser)
 
+// public
+usersRoutes.post('/public-login',userController.publicLogin)
+
+
 module.exports = usersRoutes;

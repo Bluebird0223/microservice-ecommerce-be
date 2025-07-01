@@ -65,6 +65,9 @@ const createUser = async (req, res, next) => {
             });
         }
 
+        // send otp
+        await sendOtp(email)
+
         // Handle file upload if present
         if (req.file) {
             profilePictureUrl = await uploadProfilePictureToS3(S3_PROFILE_PICTURE_FOLDER, req.file.buffer, req.file.mimetype);
@@ -72,6 +75,8 @@ const createUser = async (req, res, next) => {
         } else {
             value.profilePicture = null; // Ensure profilePicture is null if no file uploaded
         }
+
+
 
         // Create the user in DynamoDB via the model
         const newUser = await userModel.createUser(value);
@@ -206,7 +211,6 @@ const loginUser = async (req, res, next) => {
 
         //Extract data from request body
         const { userName, password } = req.body;
-
         if (!userName || !password) {
             return res.status(400).json({
                 status: "FAILED",
@@ -240,8 +244,6 @@ const loginUser = async (req, res, next) => {
                 userType: existingUserByName?.userType,
                 email: existingUserByName?.email,
                 bio: existingUserByName?.bio,
-                // employeeGroup: isUserExist?.employee_group,
-                // tabAccess: isUserExist?.tabAccess
             }
             const token = generateUserJWT(userDetails)
             if (token) {
@@ -261,16 +263,63 @@ const loginUser = async (req, res, next) => {
 
 
     } catch (error) {
-        console.error("Error in userController.js - login:", error);
+        console.error("Error in userController.js - loginUser:", error);
         next(error);
     }
 
 }
+
+const publicLogin = async (req, res, next) => {
+    try {
+
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({
+                status: "FAILED",
+                message: "email is required"
+            });
+        }
+
+        //check if user already exist 
+        const existingUserByEmail = await userModel.getUserByEmail(email);
+        if (existingUserByEmail) {
+            const userDetails = {
+                userId: existingUserByEmail?.userId,
+                username: existingUserByEmail?.username,
+                userType: existingUserByEmail?.userType,
+                email: existingUserByEmail?.email,
+                bio: existingUserByEmail?.bio,
+                profilePicture: existingUserByEmail?.profilePicture,
+                address: existingUserByEmail?.address,
+
+            }
+            const token = generateUserJWT(userDetails)
+            if (token) {
+                return res.status(200).json({
+                    status: "SUCCESS",
+                    message: "Login Successfully",
+                    token,
+                    userDetails,
+                })
+            }
+
+        } else {
+            return res.status(200).json({
+                status: "FAILED",
+                message: "Email not registered, please register first",
+            });
+        }
+    } catch (error) {
+        console.error("Error in userController.js - publicLogin:", error);
+        next(error); // Pass error to the error handling middleware
+    }
+};
 
 module.exports = {
     createUser,
     getAllUsers,
     updateUser,
     getUserById,
-    loginUser
+    loginUser,
+    publicLogin
 };
