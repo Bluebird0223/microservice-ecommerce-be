@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const productSchema = Joi.object({
+exports.paymentSchema = Joi.object({
     paymentId: Joi.string().optional(),
     orderId: Joi.string().required(),
     userId: Joi.string().required(),
@@ -11,5 +11,3 @@ const productSchema = Joi.object({
     createdAt: Joi.date().iso().default(() => new Date().toISOString()),
     updatedAt: Joi.date().iso().default(() => new Date().toISOString()),
 });
-
-module.exports = productSchema;

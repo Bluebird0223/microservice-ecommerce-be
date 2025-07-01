@@ -1,6 +1,7 @@
 
 const { dynamodb, DYNAMODB_ORDER_TABLE } = require('../config/aws');
-const uniqId = require("short-unique-id")
+const uniqId = require("short-unique-id");
+const { getUserById } = require('./user.model');
 const uid = new uniqId();
 
 exports.createOrder = async (orderData) => {
@@ -27,20 +28,28 @@ exports.getOrdersByUserId = async (userId) => {
         }
     };
     const result = await dynamodb.query(params).promise();
-    return result.Items;
+    const orders = result.Items;
+
+    const user = await getUserById(userId); // fetch user name from Users table
+
+    // Add user name to each order
+    const ordersWithUser = orders.map(order => ({
+        ...order,
+        userName: user?.username || 'Unknown User'
+    }));
+
+    return ordersWithUser;
 };
 
 exports.getOrdersByOrderId = async (orderId) => {
     const params = {
         TableName: DYNAMODB_ORDER_TABLE,
-        IndexName: 'OrderStatusIndex',
-        KeyConditionExpression: 'orderId = :id',
-        ExpressionAttributeValues: {
-            ':id': orderId
+        Key: {
+            orderId: orderId
         }
     };
-    const result = await dynamodb.query(params).promise();
-    return result.Items;
+    const result = await dynamodb.get(params).promise();
+    return result.Item;
 };
 
 exports.getOrdersByStatus = async (status) => {

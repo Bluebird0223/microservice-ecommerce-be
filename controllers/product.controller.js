@@ -237,7 +237,7 @@ exports.deleteProduct = async (req, res, next) => {
 
         res.status(200).json({
             message: 'Product deleted successfully',
-            deletedProduct: deletedItem 
+            deletedProduct: deletedItem
         });
 
 

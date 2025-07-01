@@ -97,7 +97,7 @@ exports.getOrderByOrderId = async (req, res, next) => {
     try {
         const { orderId } = req.body;
         // Fetch existing order
-        const existingOrder = await orderModel.getOrderByOrderId(orderId);
+        const existingOrder = await orderModel.getOrdersByOrderId(orderId);
         if (!existingOrder) {
             return res.status(404).json({ message: 'order not found' });
         }
