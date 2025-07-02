@@ -64,3 +64,24 @@ exports.getOrdersByStatus = async (status) => {
     const result = await dynamodb.query(params).promise();
     return result.Items;
 };
+
+exports.updateOrder = async (updateData) => {
+    const { orderId, orderStatus } = updateData;
+    // if (!orderId) {
+    //     throw new Error("orderId is required for updating order");
+    // }
+
+    const params = {
+        TableName: DYNAMODB_ORDER_TABLE,
+        Key: { orderId },
+        UpdateExpression: "set orderStatus = :orderStatus, updatedAt = :updatedAt",
+        ExpressionAttributeValues: {
+            ":orderStatus": orderStatus,
+            ":updatedAt": new Date().toISOString()
+        },
+        ReturnValues: "ALL_NEW"
+    };
+
+    const result = await dynamodb.update(params).promise();
+    return result.Attributes;
+}

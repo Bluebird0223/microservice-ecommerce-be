@@ -35,7 +35,7 @@ exports.createOrder = async (req, res, next) => {
 exports.getOrdersById = async (req, res, next) => {
     try {
 
-        let userId='685c161es0'
+        let userId = '685c161es0'
 
         // const { userId } = req
 
@@ -53,10 +53,7 @@ exports.getOrdersById = async (req, res, next) => {
 // // Controller for updating a user
 // const updateCategory = async (req, res, next) => {
 //     try {
-
 //         const { categoryId, categoryName } = req.body;
-
-
 //         // Validate user data using Joi
 //         const { error, value } = categorySchema.validate({ categoryId, categoryName }, { abortEarly: false, stripUnknown: true });
 //         if (error) {
@@ -108,5 +105,39 @@ exports.getOrderByOrderId = async (req, res, next) => {
     } catch (error) {
         console.error("Error in orderController.js - getOrderById:", error);
         next(error);
+    }
+}
+
+exports.updateOrderStatus = async (req, res, next) => {
+    try {
+        const { orderId, orderStatus } = req.body;
+
+        if (!orderId && !orderStatus) {
+            return res.status(400).json({
+                status: "FAILED",
+                message: 'Validation Error',
+                details: error.details.map(x => x.message),
+            });
+        }
+
+        // Fetch existing user
+        const existingOrder = await orderModel.getOrdersByOrderId(orderId);
+        if (!existingOrder) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        let dataToUpdate = {
+            orderId,
+            orderStatus
+        }
+
+        const updated = await orderModel.updateOrder(dataToUpdate);
+        return res.status(200).json({
+            status: "SUCCESS",
+            message: "Order updated successfully",
+            updated
+        });
+    } catch (error) {
+        console.error("Error in orderController.js - updateOrder:", error);
+        next(error); // Pass error to the error handling middleware
     }
 }

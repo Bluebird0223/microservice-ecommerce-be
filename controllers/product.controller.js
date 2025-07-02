@@ -151,6 +151,8 @@ exports.updateProduct = async (req, res, next) => {
             data = req.body;
         }
 
+        console.log("back data",data,isFileAttached)
+
         // Set the file size limit
         const sizeLimit = 2000000; // 2MB limit
         const attachedFile = req?.file;
